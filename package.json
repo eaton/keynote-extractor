@@ -1,0 +1,59 @@
+{
+  "name": "@eatonfyi/keynote-extractor",
+  "version": "1.0.0",
+  "description": "Extract and generate web-friendly assets from Keynote presentations using Applescript.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.cts",
+  "exports": {
+    "require": {
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.cjs"
+    },
+    "import": {
+      "types": "./dist/index.d.mts",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "/dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pkgroll",
+    "clean": "shx rm -rf dist",
+    "prepare": "npm run clean && npm run build",
+    "test": "ava"
+  },
+  "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--import=tsimp"
+    ]
+  },
+  "keywords": [
+    "keynote",
+    "iwork",
+    "macos",
+    "applescript"
+  ],
+  "author": "eaton",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "ava": "^6.1.2",
+    "pkgroll": "^2.0.2",
+    "shx": "^0.3.4",
+    "tsimp": "^2.0.11",
+    "typescript": "^5.4.3"
+  },
+  "dependencies": {
+    "@eatonfyi/dates": "github:eaton/dates",
+    "@eatonfyi/fs-jetpack": "github:eaton/fs-jetpack",
+    "@eatonfyi/text": "github:eaton/text",
+    "run-applescript": "^7.0.0"
+  }
+}
