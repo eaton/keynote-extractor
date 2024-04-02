@@ -1,92 +1,16 @@
 import path from 'path';
 import { runAppleScript } from 'run-applescript';
 import * as Text from '@eatonfyi/text';
-import * as Dates from '@eatonfyi/dates';
 import jetpack from '@eatonfyi/fs-jetpack';
+import { KeynoteDeck, KeynoteExportOptions } from './types.js';
 
-
-export interface KeynoteSlide {
-  number: number;
-  skipped: boolean;
-  layout: string;
-  title: string;
-  body: string;
-  notes: string;
-  image?: string;
-  textItems: string[];
-}
-
-export interface KeynoteDeck {
-  id: string;
-  name: string;
-  file: string;
-  created: string;
-  theme: string;
-  height: number;
-  width: number;
-  slides: KeynoteSlide[];
-}
-
-export type KeynoteExportFormat =
-  | 'JSON'
-  | 'JSON with images'
-  | 'HTML'
-  | 'QuickTime movie'
-  | 'PDF'
-  | 'slide images'
-  | 'Microsoft PowerPoint'
-  | 'Keynote 09';
-
-export interface KeynoteExportOptions {
-  path?: string;
-  format?: KeynoteExportFormat;
-  imageFormat?: 'JPEG' | 'PNG' | 'TIFF';
-  movieFormat?:
-    | 'format360p'
-    | 'format540p'
-    | 'format720p'
-    | 'format1080p'
-    | 'format2160p'
-    | 'native size';
-  movieCodec?:
-    | 'h264'
-    | 'AppleProRes422'
-    | 'AppleProRes4444'
-    | 'AppleProRes422LT'
-    | 'AppleProRes422HQ'
-    | 'AppleProRes422Proxy'
-    | 'HEVC';
-  movieFramerate?:
-    | 'FPS12'
-    | 'FPS2398'
-    | 'FPS24'
-    | 'FPS25'
-    | 'FPS2997'
-    | 'FPS30'
-    | 'FPS50'
-    | 'FPS5994'
-    | 'FPS60';
-  exportStyle?: 'IndividualSlides' | 'SlideWithNotes' | 'Handouts';
-  compressionFactor?: number;
-  allStages?: boolean;
-  skippedSlides?: boolean;
-  borders?: boolean;
-  slideNumbers?: boolean;
-  date?: boolean;
-  rawkpf?: boolean;
-  password?: boolean;
-  passwordHint?: boolean;
-  includeComments?: boolean;
-  pdfImageQuality?: 'Good' | 'Better' | 'Best';
-}
-
-export class Keynote {
+export class KeynoteApp {
   protected deck?: KeynoteDeck;
 
   protected constructor() {}
 
   static async open(file: string) {
-    return new Keynote().open(file);
+    return new KeynoteApp().open(file);
   }
 
   static async quit() {
@@ -134,6 +58,11 @@ export class Keynote {
   toJSON() {
     return this.deck;
   }
+
+  // TODO: Keynote Deck should probably be its own class, wrapping the idea of
+  // which window/document is being manipulated rather than always assuming the
+  // frontmost window. It's extremely janky, however, so for now this probably
+  // works juuuuuuust fine.
 
   async open(file: string) {
     this.deck = await runAppleScript(`
@@ -314,7 +243,7 @@ export class Keynote {
         set v to v & the POSIX path of p
 
         tell application "Finder"
-          set fileDate to (the creation date of file deckFile as string)
+          set fileDate to short date string of (the creation date of file deckFile) as string
         end tell
 
         set v to v & fileDate
@@ -332,7 +261,7 @@ export class Keynote {
         id,
         name,
         file,
-        created: Dates.parse(created, Dates.formats.applescript, Date.now()).toISOString().split('T')[0],
+        created,
         theme,
         height: Number.parseInt(height),
         width: Number.parseInt(width),
