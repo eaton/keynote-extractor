@@ -9,6 +9,10 @@ export class KeynoteApp {
 
   protected constructor() {}
 
+  slideDelimiter = '\x1C';
+  itemDelimiter = '\x1D';
+  valDelimiter = '\x1E';
+
   static async open(file: string) {
     return new KeynoteApp().open(file);
   }
@@ -229,10 +233,9 @@ export class KeynoteApp {
   }
 
   protected async _getDeckInfo(id: string): Promise<KeynoteDeck> {
-    const valDelimiter = '␞';
     const deck: KeynoteDeck = await runAppleScript(`
       set i to "${id}"
-      set valueDelim to "${valDelimiter}"
+      set valueDelim to "${this.valDelimiter}"
       tell application "Keynote"
         set deck to document id i
         set deckFile to the file of deck
@@ -256,7 +259,7 @@ export class KeynoteApp {
       end tell
     `).then((result) => {
       const [id, name, file, created, theme, height, width] =
-        result.split(valDelimiter);
+        result.split(this.valDelimiter);
       return {
         id,
         name,
@@ -273,15 +276,11 @@ export class KeynoteApp {
   }
 
   protected async _getSlides(id: string) {
-    const slideDelimiter = '␝';
-    const valDelimiter = '␞';
-    const itemDelimiter = '␟';
-
     return runAppleScript(`
       set i to "${id}"
-      set slideDelim to "${slideDelimiter}"
-      set valueDelim to "${valDelimiter}"
-      set itemDelim to "${itemDelimiter}"
+      set slideDelim to "${this.slideDelimiter}"
+      set valueDelim to "${this.valDelimiter}"
+      set itemDelim to "${this.itemDelimiter}"
 
       tell application "Keynote"
         set ss to {}
@@ -313,11 +312,11 @@ export class KeynoteApp {
         return sd as string
       end tell
     `)
-      .then((result) => result.split(slideDelimiter))
+      .then((result) => result.split(this.slideDelimiter))
       .then((slides) =>
         slides.map((slide) => {
           const [number, skipped, layout, title, body, notes, textItems] =
-            slide.split(valDelimiter);
+            slide.split(this.valDelimiter);
           return {
             number: Number.parseInt(number),
             skipped: skipped === 'true',
@@ -326,7 +325,7 @@ export class KeynoteApp {
             body,
             notes,
             textItems: textItems
-              .split(itemDelimiter)
+              .split(this.itemDelimiter)
               .filter((t) => t.trim().length > 0),
           };
         }),
