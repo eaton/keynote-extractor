@@ -13,7 +13,6 @@ export type KeynoteDeck = {
   id: string,
   name: string,
   file: string;
-  created: string,
   theme: string,
   height: number,
   width: number,

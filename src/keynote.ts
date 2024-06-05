@@ -39,10 +39,6 @@ export class KeynoteApp {
     return this.deck?.file ?? '';
   }
 
-  get created() {
-    return this.deck?.created;
-  }
-
   get theme() {
     return this.deck?.theme ?? '';
   }
@@ -245,11 +241,6 @@ export class KeynoteApp {
         set v to v & the name of deck
         set v to v & the POSIX path of p
 
-        tell application "Finder"
-          set fileDate to short date string of (the creation date of file deckFile) as string
-        end tell
-
-        set v to v & fileDate
         set v to v & the name of the document theme of deck
         set v to v & the height of deck
         set v to v & the width of deck
@@ -258,13 +249,12 @@ export class KeynoteApp {
         return v as string
       end tell
     `).then((result) => {
-      const [id, name, file, created, theme, height, width] =
+      const [id, name, file, theme, height, width] =
         result.split(this.valDelimiter);
       return {
         id,
         name,
         file,
-        created,
         theme,
         height: Number.parseInt(height),
         width: Number.parseInt(width),
