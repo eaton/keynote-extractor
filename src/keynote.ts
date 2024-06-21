@@ -149,7 +149,11 @@ export class KeynoteApp {
         outputPath = cwd.path('html');
         break;
       case 'PDF':
-        outputPath = cwd.path(opt.exportStyle + '.pdf');
+        if (opt.allStages) {
+          outputPath = cwd.path(opt.exportStyle + '-AllStages.pdf');
+        } else {
+          outputPath = cwd.path(opt.exportStyle + '.pdf');
+        }
         break;
       case 'QuickTime movie':
         outputPath = cwd.path(this.title + '.m4v');
